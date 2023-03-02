@@ -1,0 +1,11 @@
+{
+    "name": "geekbrains/php2",
+    "autoload": {
+        "psr-4": {
+            "Geekbrains\\Php2\\": "src/"
+        }
+    },
+    "require": {
+        "fakerphp/faker": "^1.21"
+    }
+}
