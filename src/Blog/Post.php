@@ -6,8 +6,8 @@ namespace Geekbrains\Php2\Blog;
 class Post
 {
 
-    public function __construct(private int $id,
-                                private User $authorId,
+    public function __construct(private UUID $uuid,
+                                private User $user,
                                 private string $header,
                                 private string $text)
     {
@@ -16,31 +16,23 @@ class Post
 
     public function __toString(): string
     {
-        return "Пользователь {$this->authorId->getId()} написал статью $this->id $this->header с содержанием: \n $this->text" . PHP_EOL;
+        return "Пользователь {$this->user->uuid()} написал статью $this->uuid $this->header с содержанием: \n $this->text" . PHP_EOL;
     }
 
     /**
-     * @return int
+     * @return UUID
      */
-    public function getId(): int
+    public function uuid(): UUID
     {
-        return $this->id;
+        return $this->uuid;
     }
 
     /**
-     * @param int $id
+     * @return User
      */
-    public function setId(int $id): void
+    public function getUser(): User
     {
-        $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAuthorId(): int
-    {
-        return $this->authorId->getId();
+        return $this->user;
     }
 
     /**

@@ -1,71 +1,55 @@
 <?php
 namespace Geekbrains\Php2\Blog;
-use Geekbrains\Php2\Person\Name;
 
 class User
 {
     /**
-     * @param int $id
-     * @param string $firstname
-     * @param string $lastname
+     * @param UUID $uuid
+     * @param string $username
+     * @param Name $name
      */
-    public function __construct(private int    $id,
-                                private string $firstname,
-                                private string $lastname)
+    public function __construct(private UUID   $uuid,
+                                private Name   $name,
+                                private string $username
+                                )
     {
     }
 
     public function __toString(): string
     {
-        return "User $this->id с именем $this->firstname и фамилией $this->lastname." . PHP_EOL;
+        return "User $this->uuid с именем {$this->name->firstname()} и фамилией {$this->name->lastname()}." . PHP_EOL;
     }
 
     /**
-     * @return int
+     * @return UUID
      */
-    public function getId(): int
+    public function uuid(): UUID
     {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
+        return $this->uuid;
     }
 
     /**
      * @return string
      */
-    public function getFirstname(): string
+    public function username(): string
     {
-        return $this->firstname;
+        return $this->username;
     }
 
     /**
-     * @param string $firstname
+     * @param string $username
      */
-    public function setFirstname(string $firstname): void
+    public function setUsername(string $username): void
     {
-        $this->firstname = $firstname;
+        $this->username = $username;
     }
 
     /**
-     * @return string
+     * @return Name
      */
-    public function getLastname(): string
+    public function name(): Name
     {
-        return $this->lastname;
-    }
-
-    /**
-     * @param string $lastname
-     */
-    public function setLastname(string $lastname): void
-    {
-        $this->lastname = $lastname;
+        return $this->name;
     }
 
 }
