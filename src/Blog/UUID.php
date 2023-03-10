@@ -4,7 +4,7 @@ namespace Geekbrains\Php2\Blog;
 
 use Geekbrains\Php2\Blog\Exceptions\InvalidArgumentException;
 
-class UUID
+class UUID extends \Geekbrains\Php2\Blog\User
 {
     /**
      * @throws InvalidArgumentException

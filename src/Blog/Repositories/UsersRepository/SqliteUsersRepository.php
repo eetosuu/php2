@@ -7,8 +7,9 @@ use Geekbrains\Php2\Blog\Exceptions\UserNotFoundException;
 use Geekbrains\Php2\Blog\User;
 use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Blog\Name;
-use \PDO;
-use \PDOStatement;
+use PDO;
+use PDOStatement;
+
 
 class SqliteUsersRepository implements UserRepositoryInterface
 {
