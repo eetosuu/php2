@@ -15,10 +15,6 @@ class User
     {
     }
 
-    public function __toString(): string
-    {
-        return "User $this->uuid с именем {$this->name->firstname()} и фамилией {$this->name->lastname()}." . PHP_EOL;
-    }
 
     /**
      * @return UUID
