@@ -21,11 +21,12 @@ use Geekbrains\Php2\Http\SuccessfulResponse;
 class CreateComment implements ActionInterface
 {
     public function __construct(private CommentsRepositoryInterface $commentsRepository,
-        private PostsRepositoryInterface $postsRepository,
-        private UserRepositoryInterface $usersRepository,
+                                private PostsRepositoryInterface    $postsRepository,
+                                private UserRepositoryInterface     $usersRepository,
     )
     {
     }
+
     public function handle(Request $request): Response
     {
         try {
@@ -38,7 +39,6 @@ class CreateComment implements ActionInterface
         } catch (HttpException|InvalidArgumentException $e) {
             return new ErrorResponse($e->getMessage());
         }
-// Пытаемся найти пользователя в репозитории
         try {
             $user = $this->usersRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
@@ -49,11 +49,8 @@ class CreateComment implements ActionInterface
         } catch (PostNotFoundException $e) {
             return new ErrorResponse($e->getMessage());
         }
-// Генерируем UUID для новой статьи
         $newCommentUuid = UUID::random();
         try {
-// Пытаемся создать объект статьи
-// из данных запроса
             $comment = new Comment(
                 $newCommentUuid,
                 $user,
@@ -63,10 +60,7 @@ class CreateComment implements ActionInterface
         } catch (HttpException $e) {
             return new ErrorResponse($e->getMessage());
         }
-// Сохраняем новую статью в репозитории
         $this->commentsRepository->save($comment);
-// Возвращаем успешный ответ,
-// содержащий UUID новой статьи
         return new SuccessfulResponse([
             'uuid' => (string)$newCommentUuid,
         ]);
