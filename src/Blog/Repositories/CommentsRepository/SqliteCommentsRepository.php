@@ -10,10 +10,11 @@ use Geekbrains\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Geekbrains\Php2\Blog\UUID;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 class SqliteCommentsRepository implements CommentsRepositoryInterface
 {
-    public function __construct(private PDO $connection)
+    public function __construct(private PDO $connection, private LoggerInterface $logger)
     {
     }
 
@@ -31,6 +32,7 @@ class SqliteCommentsRepository implements CommentsRepositoryInterface
         ]);
 
         return $this->getComment($statement, $uuid);
+
     }
 
     public function save(Comment $comment): void
@@ -43,6 +45,8 @@ class SqliteCommentsRepository implements CommentsRepositoryInterface
             ':post_uuid' => $comment->uuid(),
             ':text' => $comment->getText(),
         ]);
+
+        $this->logger->info("Comment created: {$comment->uuid()}");
     }
 
     /**
@@ -52,13 +56,16 @@ class SqliteCommentsRepository implements CommentsRepositoryInterface
     private function getComment(PDOStatement $statement, string $parameter): Comment
     {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
-        $userRepository = new SqliteUsersRepository($this->connection);
-        $postRepository = new SqlitePostsRepository($this->connection);
+        $userRepository = new SqliteUsersRepository($this->connection, $this->logger);
+        $postRepository = new SqlitePostsRepository($this->connection, $this->logger);
         $user = $userRepository->get($result['author_uuid']);
         $post = $postRepository->get($result['post_uuid']);
         if ($result === false) {
+            $message = "Cannot find comment: $parameter";
+            $this->logger->warning($message);
+
             throw new CommentNotFoundException(
-                "Cannot find comment: $parameter"
+                $message
             );
         }
         return new Comment(

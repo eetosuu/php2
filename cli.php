@@ -4,21 +4,19 @@
 use Geekbrains\Php2\Blog\Commands\Arguments;
 use Geekbrains\Php2\Blog\Commands\CreateUserCommand;
 use Geekbrains\Php2\Blog\Exceptions\AppException;
-use Geekbrains\Php2\Blog\Repositories\LikesRepository\LikesRepositoryInterface;
+use Psr\Log\LoggerInterface;
 
 
 $container = require __DIR__ . '/bootstrap.php';
 
 $command = $container->get(CreateUserCommand::class);
 
+$logger = $container->get(LoggerInterface::class);
+
 try {
-
-    $likeRep = $container->get(LikesRepositoryInterface::class);
-    $likes = $likeRep->getByPostUuid(new \Geekbrains\Php2\Blog\UUID('0b14af37-f4ef-4d84-8e5a-c36b5a2663ac'));
-
-    print_r($likes); die();
     $command->handle(Arguments::fromArgv($argv));
 } catch (AppException $e) {
     echo "{$e->getMessage()}\n";
+    $logger->error($e->getMessage(), ['exception' => $e]);
 }
 

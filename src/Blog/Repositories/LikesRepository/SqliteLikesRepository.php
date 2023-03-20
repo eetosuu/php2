@@ -9,10 +9,11 @@ use Geekbrains\Php2\Blog\Like;
 use Geekbrains\Php2\Blog\UUID;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 class SqliteLikesRepository implements LikesRepositoryInterface
 {
-    public function __construct(private PDO $connection)
+    public function __construct(private PDO $connection, private LoggerInterface $logger)
     {
     }
 
@@ -25,6 +26,8 @@ class SqliteLikesRepository implements LikesRepositoryInterface
             ':post_uuid' => (string)$like->getPostUuid(),
             ':author_uuid' => (string)$like->getAuthorUuid(),
         ]);
+
+        $this->logger->info("Like created: {$like->getLikeUuid()}");
     }
 
     /**
@@ -42,8 +45,11 @@ class SqliteLikesRepository implements LikesRepositoryInterface
             ]);
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
         if ($result === false) {
+            $message = "Cannot find like by post: $post_uuid";
+            $this->logger->warning($message);
+
             throw new LikeNotFoundException(
-                "Cannot find like by post: $post_uuid"
+                $message
             );
         }
         $likes = [];
@@ -55,6 +61,10 @@ class SqliteLikesRepository implements LikesRepositoryInterface
         }
         return $likes;
     }
+
+    /**
+     * @throws LikeAlreadyExists
+     */
     public function checkUserLikeForPostExists($postUuid, $authorUuid): void
     {
         $statement = $this->connection->prepare(
@@ -71,8 +81,11 @@ class SqliteLikesRepository implements LikesRepositoryInterface
         $isExisted = $statement->fetch();
 
         if ($isExisted) {
+            $messageLikeAlreadyExists = "The users like for this post already exists";
+
+            $this->logger->warning($messageLikeAlreadyExists);
             throw new LikeAlreadyExists(
-                'The users like for this post already exists'
+                $messageLikeAlreadyExists
             );
         }
     }

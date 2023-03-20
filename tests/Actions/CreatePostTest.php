@@ -12,10 +12,13 @@ use Geekbrains\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
 use Geekbrains\Php2\Blog\User;
 use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Http\Actions\Posts\CreatePost;
+use Geekbrains\Php2\Http\Auth\JsonBodyUuidIdentification;
 use Geekbrains\Php2\Http\ErrorResponse;
 use Geekbrains\Php2\Http\Request;
 use Geekbrains\Php2\Http\SuccessfulResponse;
+use Geekbrains\Php2\UnitTests\DummyLogger;
 use PHPUnit\Framework\TestCase;
+use Geekbrains\Php2\Http\Auth\AuthException;
 
 class CreatePostTest extends TestCase
 {
@@ -94,22 +97,24 @@ class CreatePostTest extends TestCase
 
         $postsRepository = $this->postsRepository();
 
-        $usersRepository = $this->usersRepository([
-            new User(
-                new UUID('10373537-0805-4d7a-830e-22b481b4859c'),
-                new Name('name', 'surname'),
-                'username',
+        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub
+            ->method('user')
+            ->willReturn(
+                new User(
+                    new UUID("10373537-0805-4d7a-830e-22b481b4859c"),
+                    new Name('first', 'last'),
+                    'username',
+                )
+            );
 
-            ),
-        ]);
-
-        $action = new CreatePost($postsRepository, $usersRepository);
+        $action = new CreatePost($postsRepository, $authenticationStub, new DummyLogger());
 
         $response = $action->handle($request);
 
         $this->assertInstanceOf(SuccessfulResponse::class, $response);
 
-        $this->setOutputCallback(function ($data){
+        $this->setOutputCallback(function ($data) {
             $dataDecode = json_decode(
                 $data,
                 associative: true,
@@ -137,10 +142,16 @@ class CreatePostTest extends TestCase
     {
         $request = new Request([], [], '{"author_uuid":"10373537-0805-4d7a-830e-22b481b4859c","title":"title","text":"text"}');
 
-        $postsRepository = $this->postsRepository();
-        $usersRepository = $this->usersRepository([]);
+        $postsRepositoryStub = $this->createStub(PostsRepositoryInterface::class);
+        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
 
-        $action = new CreatePost($postsRepository, $usersRepository);
+        $authenticationStub
+            ->method('user')
+            ->willThrowException(
+                new AuthException('Cannot find user: 10373537-0805-4d7a-830e-22b481b4859c')
+            );
+
+        $action = new CreatePost($postsRepositoryStub, $authenticationStub, new DummyLogger());
 
         $response = $action->handle($request);
 
@@ -160,14 +171,18 @@ class CreatePostTest extends TestCase
         $request = new Request([], [], '{"author_uuid":"10373537-0805-4d7a-830e-22b481b4859c","title":"title"}');
 
         $postsRepository = $this->postsRepository([]);
-        $usersRepository = $this->usersRepository([
-            new User(
-                new UUID('10373537-0805-4d7a-830e-22b481b4859c'),
-                new Name('Ivan', 'Nikitin'), 'ivan',
-            ),
-        ]);
+        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub
+            ->method('user')
+            ->willReturn(
+                new User(
+                    new UUID("10373537-0805-4d7a-830e-22b481b4859c"),
+                    new Name('first', 'last'),
+                    'username',
+                )
+            );
 
-        $action = new CreatePost($postsRepository, $usersRepository);
+        $action = new CreatePost($postsRepository, $authenticationStub, new DummyLogger());
 
         $response = $action->handle($request);
 

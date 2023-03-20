@@ -10,10 +10,11 @@ use Geekbrains\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Geekbrains\Php2\Blog\UUID;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 class SqlitePostsRepository implements PostsRepositoryInterface
 {
-    public function __construct(private PDO $connection)
+    public function __construct(private PDO $connection, private LoggerInterface $logger)
     {
     }
 
@@ -33,6 +34,7 @@ class SqlitePostsRepository implements PostsRepositoryInterface
 
         return $this->getPost($statement, $uuid);
     }
+
     public function save(Post $post): void
     {
         $statement = $this->connection->prepare(
@@ -43,7 +45,10 @@ class SqlitePostsRepository implements PostsRepositoryInterface
             ':title' => $post->getHeader(),
             ':text' => $post->getText(),
         ]);
+
+        $this->logger->info("Post created: {$post->uuid()}");
     }
+
     public function delete(UUID $uuid): void
     {
         $statement = $this->connection->prepare(
@@ -51,7 +56,9 @@ class SqlitePostsRepository implements PostsRepositoryInterface
         $statement->execute([
             ':uuid' => (string)$uuid,
         ]);
+        $this->logger->info("Post delete: $uuid");
     }
+
     /**
      * @throws InvalidArgumentException
      * @throws PostNotFoundException|UserNotFoundException
@@ -61,12 +68,14 @@ class SqlitePostsRepository implements PostsRepositoryInterface
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         if ($result === false) {
+            $message = "Cannot find post: $parameter";
+            $this->logger->warning($message);
             throw new PostNotFoundException(
-                "Cannot find post: $parameter"
+                $message
             );
         }
 
-        $userRepository = new SqliteUsersRepository($this->connection);
+        $userRepository = new SqliteUsersRepository($this->connection, $this->logger);
         $user = $userRepository->get(new UUID($result['author_uuid']));
         return new Post(
             new UUID($result['uuid']),

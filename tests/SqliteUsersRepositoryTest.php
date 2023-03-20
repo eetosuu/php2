@@ -7,6 +7,7 @@ use Geekbrains\Php2\Blog\Name;
 use Geekbrains\Php2\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use Geekbrains\Php2\Blog\User;
 use Geekbrains\Php2\Blog\UUID;
+use Geekbrains\Php2\UnitTests\DummyLogger;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +21,7 @@ class SqliteUsersRepositoryTest extends TestCase
         $statementStub->method('fetch')->willReturn(false);
         $connectionMock->method('prepare')->willReturn($statementStub);
 
-        $repository = new SqliteUsersRepository($connectionMock);
+        $repository = new SqliteUsersRepository($connectionMock, new DummyLogger());
         $this->expectException(UserNotFoundException::class);
         $this->expectExceptionMessage('Cannot find user: Ivan');
 
@@ -30,12 +31,10 @@ class SqliteUsersRepositoryTest extends TestCase
 
     public function testItSavesUserToDatabase(): void
     {
-// 2. Создаём стаб подключения
         $connectionStub = $this->createStub(PDO::class);
-// 4. Создаём мок запроса, возвращаемый стабом подключения
+
         $statementMock = $this->createMock(PDOStatement::class);
-// 5. Описываем ожидаемое взаимодействие
-// нашего репозитория с моком запроса
+
         $statementMock
             ->expects($this->once()) // Ожидаем, что будет вызван один раз
             ->method('execute') // метод execute
@@ -45,12 +44,11 @@ class SqliteUsersRepositoryTest extends TestCase
                 ':first_name' => 'Ivan',
                 ':last_name' => 'Nikitin',
             ]);
-// 3. При вызове метода prepare стаб подключения
-// возвращает мок запроса
+
         $connectionStub->method('prepare')->willReturn($statementMock);
 
 // 1. Передаём в репозиторий стаб подключения
-        $repository = new SqliteUsersRepository($connectionStub);
+        $repository = new SqliteUsersRepository($connectionStub, new DummyLogger());
 // Вызываем метод сохранения пользователя
         $repository->save(
             new User( // Свойства пользователя точно такие,

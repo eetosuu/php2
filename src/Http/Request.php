@@ -37,9 +37,9 @@ class Request
             $data = json_decode(
                 $this->body,
 // Декодируем в ассоциативный массив
-                associative: true,
+                true,
 // Бросаем исключение при ошибке
-                flags: JSON_THROW_ON_ERROR
+                JSON_THROW_ON_ERROR
             );
         } catch (JsonException) {
             throw new HttpException("Cannot decode json body");

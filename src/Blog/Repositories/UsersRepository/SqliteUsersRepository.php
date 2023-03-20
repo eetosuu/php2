@@ -9,11 +9,12 @@ use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Blog\Name;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 
 class SqliteUsersRepository implements UserRepositoryInterface
 {
-    public function __construct(private PDO $connection)
+    public function __construct(private PDO $connection, private LoggerInterface $logger)
     {
     }
 
@@ -27,6 +28,7 @@ class SqliteUsersRepository implements UserRepositoryInterface
             ':uuid' => (string)$user->uuid(),
             ':username' => $user->username(),
         ]);
+        $this->logger->info("User created: {$user->uuid()}");
     }
 
     /**
@@ -69,8 +71,10 @@ class SqliteUsersRepository implements UserRepositoryInterface
     {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if ($result === false) {
+            $message = "Cannot find user: $parameter";
+            $this->logger->warning($message);
             throw new UserNotFoundException(
-                "Cannot find user: $parameter"
+                $message
             );
         }
         return new User(
