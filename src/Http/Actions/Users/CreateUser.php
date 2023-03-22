@@ -31,7 +31,8 @@ public function __construct(private  UserRepositoryInterface $usersRepository)
                     $request->jsonBodyField('last_name')
 
                 ),
-                $request->jsonBodyField('username')
+                $request->jsonBodyField('username'),
+                $request->jsonBodyField('password')
 
             );
         } catch (HttpException $e) {

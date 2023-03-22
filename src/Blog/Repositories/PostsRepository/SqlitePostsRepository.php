@@ -56,7 +56,7 @@ class SqlitePostsRepository implements PostsRepositoryInterface
         $statement->execute([
             ':uuid' => (string)$uuid,
         ]);
-        $this->logger->info("Post delete: $uuid");
+        $this->logger->info("Post deleted: $uuid");
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 
 use Geekbrains\Php2\Blog\Exceptions\AppException;
+use Geekbrains\Php2\Http\Actions\Auth\LogIn;
+use Geekbrains\Php2\Http\Actions\Auth\LogOut;
 use Geekbrains\Php2\Http\Actions\Comments\CreateComment;
 use Geekbrains\Php2\Http\Actions\Likes\CreateLike;
 use Geekbrains\Php2\Http\Actions\Posts\CreatePost;
@@ -43,10 +45,12 @@ $routes = [
         '/users/show' => FindByUsername::class,
     ],
     'POST' => [
+        '/login' => LogIn::class,
         '/users/create' => CreateUser::class,
         '/posts/create' => CreatePost::class,
         '/posts/comment' => CreateComment::class,
-        '/posts/like' => CreateLike::class
+        '/posts/like' => CreateLike::class,
+        '/logout' => LogOut::class
     ],
     'DELETE' => [
         '/posts' => DeletePost::class,

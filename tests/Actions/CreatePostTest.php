@@ -12,7 +12,7 @@ use Geekbrains\Php2\Blog\Repositories\UsersRepository\UserRepositoryInterface;
 use Geekbrains\Php2\Blog\User;
 use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Http\Actions\Posts\CreatePost;
-use Geekbrains\Php2\Http\Auth\JsonBodyUuidIdentification;
+use Geekbrains\Php2\Http\Auth\JsonBodyUuidAuthentication;
 use Geekbrains\Php2\Http\ErrorResponse;
 use Geekbrains\Php2\Http\Request;
 use Geekbrains\Php2\Http\SuccessfulResponse;
@@ -97,14 +97,14 @@ class CreatePostTest extends TestCase
 
         $postsRepository = $this->postsRepository();
 
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(JsonBodyUuidAuthentication::class);
         $authenticationStub
             ->method('user')
             ->willReturn(
                 new User(
                     new UUID("10373537-0805-4d7a-830e-22b481b4859c"),
                     new Name('first', 'last'),
-                    'username',
+                    'username', '123'
                 )
             );
 
@@ -143,7 +143,7 @@ class CreatePostTest extends TestCase
         $request = new Request([], [], '{"author_uuid":"10373537-0805-4d7a-830e-22b481b4859c","title":"title","text":"text"}');
 
         $postsRepositoryStub = $this->createStub(PostsRepositoryInterface::class);
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(JsonBodyUuidAuthentication::class);
 
         $authenticationStub
             ->method('user')
@@ -171,14 +171,14 @@ class CreatePostTest extends TestCase
         $request = new Request([], [], '{"author_uuid":"10373537-0805-4d7a-830e-22b481b4859c","title":"title"}');
 
         $postsRepository = $this->postsRepository([]);
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(JsonBodyUuidAuthentication::class);
         $authenticationStub
             ->method('user')
             ->willReturn(
                 new User(
                     new UUID("10373537-0805-4d7a-830e-22b481b4859c"),
                     new Name('first', 'last'),
-                    'username',
+                    'username', '123'
                 )
             );
 

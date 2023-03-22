@@ -11,6 +11,8 @@ use Geekbrains\Php2\Blog\Repositories\LikesRepository\LikesRepositoryInterface;
 use Geekbrains\Php2\Blog\Repositories\PostsRepository\PostsRepositoryInterface;
 use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Http\Actions\ActionInterface;
+use Geekbrains\Php2\Http\Auth\AuthException;
+use Geekbrains\Php2\Http\Auth\TokenAuthenticationInterface;
 use Geekbrains\Php2\Http\Request;
 use Geekbrains\Php2\Http\Response;
 use Geekbrains\Php2\Http\ErrorResponse;
@@ -20,6 +22,7 @@ class CreateLike implements ActionInterface
     public   function __construct(
         private LikesRepositoryInterface $likesRepository,
         private PostsRepositoryInterface $postRepository,
+        private TokenAuthenticationInterface $authentication
     )
     {
     }
@@ -31,8 +34,14 @@ class CreateLike implements ActionInterface
     public function handle(Request $request): Response
     {
         try {
+            $user = $this->authentication->user($request);
+        } catch (AuthException $e) {
+            return new ErrorResponse($e->getMessage());
+        }
+
+        try {
             $postUuid = $request->JsonBodyField('post_uuid');
-            $authorUuid = $request->JsonBodyField('author_uuid');
+            $authorUuid = $user->uuid();
         } catch (HttpException $e) {
             return new ErrorResponse($e->getMessage());
         }

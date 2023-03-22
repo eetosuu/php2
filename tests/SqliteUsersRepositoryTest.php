@@ -43,6 +43,7 @@ class SqliteUsersRepositoryTest extends TestCase
                 ':username' => 'ivan123',
                 ':first_name' => 'Ivan',
                 ':last_name' => 'Nikitin',
+                ':password' => '123'
             ]);
 
         $connectionStub->method('prepare')->willReturn($statementMock);
@@ -51,10 +52,9 @@ class SqliteUsersRepositoryTest extends TestCase
         $repository = new SqliteUsersRepository($connectionStub, new DummyLogger());
 // Вызываем метод сохранения пользователя
         $repository->save(
-            new User( // Свойства пользователя точно такие,
-// как и в описании мока
+            new User(
                 new UUID('123e4567-e89b-12d3-a456-426614174000'), new Name('Ivan', 'Nikitin'),
-                'ivan123',
+                'ivan123', '123'
 
             )
         );

@@ -10,7 +10,7 @@ use Geekbrains\Php2\Blog\UUID;
 use Geekbrains\Php2\Blog\User;
 use Geekbrains\Php2\Http\Request;
 
-class JsonBodyUuidIdentification implements IdentificationInterface
+class JsonBodyUuidAuthentication implements AuthenticationInterface
 {
     public function __construct(
         private UserRepositoryInterface $usersRepository

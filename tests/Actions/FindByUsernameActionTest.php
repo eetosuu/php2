@@ -67,14 +67,14 @@ class FindByUsernameActionTest extends TestCase
      */
     public function testItReturnsSuccessfulResponse(): void
     {
-        $request = new Request(['username' => 'ivan'], [],'');
+        $request = new Request(['username' => 'ivan'], [], '');
 // На этот раз в репозитории есть нужный нам пользователь
         $usersRepository = $this->usersRepository([
             new User(
                 UUID::random(),
                 new Name('Ivan', 'Nikitin'),
-                'ivan'
-                )
+                'ivan', '123'
+            )
         ]);
         $action = new FindByUsername($usersRepository);
         $response = $action->handle($request);
