@@ -1,6 +1,10 @@
 <?php
 
 use Dotenv\Dotenv;
+use Faker\Provider\Lorem;
+use Faker\Provider\ru_RU\Internet;
+use Faker\Provider\ru_RU\Person;
+use Faker\Provider\ru_RU\Text;
 use Geekbrains\Php2\Blog\Container\DIContainer;
 use Geekbrains\Php2\Blog\Repositories\AuthTokensRepository\AuthTokensRepositoryInterface;
 use Geekbrains\Php2\Blog\Repositories\AuthTokensRepository\SqliteAuthTokensRepository;
@@ -28,6 +32,8 @@ Dotenv::createImmutable(__DIR__)->safeLoad();
 
 $container = new DIContainer();
 
+$faker = new \Faker\Generator();
+
 $logger = (new Logger('blog'));
 if ('yes' === $_SERVER['LOG_TO_FILES']) {
     $logger->pushHandler(new StreamHandler(
@@ -45,6 +51,15 @@ if ('yes' === $_SERVER['LOG_TO_CONSOLE']) {
             new StreamHandler("php://stdout")
         );
 }
+$faker->addProvider(new Person($faker));
+$faker->addProvider(new Text($faker));
+$faker->addProvider(new Internet($faker));
+$faker->addProvider(new Lorem($faker));
+
+$container->bind(
+    \Faker\Generator::class,
+    $faker
+);
 
 $container->bind(
     PDO::class,
