@@ -36,8 +36,11 @@ class PopulateDB extends Command
             ->setName('fake-data:populate-db')
             ->setDescription('Populates DB with fake data')
             ->addOption(
+                //полное название опции --users-number
                 'users-number',
+                //сокращенное название опции -u
                 'u',
+                //необязательная опция
                 InputOption::VALUE_OPTIONAL,
                 'Users count',
             )
@@ -57,26 +60,32 @@ class PopulateDB extends Command
         OutputInterface $output,
     ): int
     {
+        //получаем значения опций из команды
         $usersCountInput = $input->getOption('users-number');
         $postsCountInput = $input->getOption('posts-number');
+        //если значение опции пустое, то значение по-умолчанию
         $usersCount = empty($usersCountInput) ? 10 : $usersCountInput;
         $postsCount = empty($postsCountInput) ? 20 : $postsCountInput;
         $users = [];
         for ($i = 0; $i < $usersCount; $i++) {
+            //создаем переданное кол-во юзеров через опцию
+            //сохраняем в массив
             $user = $this->createFakeUser();
             $users[] = $user;
             $output->writeln('User created: ' . $user->username());
         }
         // От имени каждого пользователя
-// создаём по двадцать статей
+        // создаем кол-во постов, введенное в команде -p
         $posts = [];
         foreach ($users as $user) {
             for ($i = 0; $i < $postsCount; $i++) {
                 $post = $this->createFakePost($user);
+                //Сохраняем пост в массив, чтобы к ним создать комментарии
                 $posts[] = $post;
                 $output->writeln('Post created: ' . $post->getHeader());
             }
             foreach ($posts as $post) {
+                //перебираем массив и создаем к каждому посту по 2 комментария
                 for ($i = 0; $i < 2; $i++) {
                     $comment = $this->createFakeComment($user, $post);
                     $output->writeln('Comment created: ' . $comment->getText());
@@ -89,18 +98,18 @@ class PopulateDB extends Command
     private function createFakeUser(): User
     {
         $user = User::createFrom(
-// Генерируем имя пользователя
+        // Генерируем имя пользователя
             $this->faker->userName,
-// Генерируем пароль
+        // Генерируем пароль
             $this->faker->password,
             new Name(
-// Генерируем имя
+        // Генерируем имя
                 $this->faker->firstName,
-// Генерируем фамилию
+        // Генерируем фамилию
                 $this->faker->lastName
             )
         );
-// Сохраняем пользователя в репозиторий
+        // Сохраняем пользователя в репозиторий
         $this->usersRepository->save($user);
         return $user;
     }
@@ -113,12 +122,12 @@ class PopulateDB extends Command
         $post = new Post(
             UUID::random(),
             $author,
-// Генерируем предложение не длиннее шести слов
+        // Генерируем предложение не длиннее шести слов
             $this->faker->sentence(6, true),
-// Генерируем текст
+        // Генерируем текст
             $this->faker->realText
         );
-// Сохраняем статью в репозиторий
+        // Сохраняем статью в репозиторий
         $this->postsRepository->save($post);
         return $post;
     }
@@ -129,9 +138,10 @@ class PopulateDB extends Command
             UUID::random(),
             $author,
             $post,
+            //Предложение не длиннее 6 слов
             $this->faker->sentence(6, true),
         );
-// Сохраняем статью в репозиторий
+        // Сохраняем комментарий в репозиторий
         $this->commentsRepository->save($comment);
         return $comment;
     }
